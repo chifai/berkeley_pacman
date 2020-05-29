@@ -73,61 +73,50 @@ def tinyMazeSearch(problem):
     return  [s, s, w, s, w, w, s, w]
 
 def depthFirstSearch(problem):
-    # list of Direction stores in PossibleRoute
-    RouteStack = util.Stack()       # stack element: (position, list of directions, total cost)
-    setExplored = set()
+    """
+    use a stack to store each state
+    """
+    # create priority queue with cost function
+    RoutePQ = util.Stack()
 
-    RouteStack.push((problem.getStartState(), [], 0))
+    # push initial state tuple:(position, list:Route)
+    tuStart = problem.getStartState()
+    RoutePQ.push((tuStart, []))
 
-    while RouteStack.isEmpty() is False:
-        tuRoute = RouteStack.pop()
-        if problem.isGoalState(tuRoute[0]):
-            return tuRoute[1]
-
-        if tuRoute[0] not in setExplored:
-            setExplored.add(tuRoute[0])
-            for tuState in problem.getSuccessors(tuRoute[0]):
-                # Get succeessor state one by one
-                RouteStack.push((tuState[0], tuRoute[1] + [tuState[1]], tuRoute[2] + tuState[2]))
-    return []
+    # call genericSearch with problem and data structure
+    return genericSearch(problem, RoutePQ)
 
 def breadthFirstSearch(problem):
-    # list of Direction stores in PossibleRoute
-    RouteStack = util.Queue()       # stack element: (position, list of directions, total cost)
-    setExplored = set()
+    """
+    use a queue to store each state
+    """
+    # create priority queue with cost function
+    RoutePQ = util.Queue()
 
-    RouteStack.push((problem.getStartState(), [], 0))
+    # push initial state tuple:(position, list:Route)
+    tuStart = problem.getStartState()
+    RoutePQ.push((tuStart, []))
 
-    while RouteStack.isEmpty() is False:
-        tuRoute = RouteStack.pop()
-        if problem.isGoalState(tuRoute[0]):
-            return tuRoute[1]
-
-        if tuRoute[0] not in setExplored:
-            setExplored.add(tuRoute[0])
-            for tuState in problem.getSuccessors(tuRoute[0]):
-                # Get succeessor state one by one
-                RouteStack.push((tuState[0], tuRoute[1] + [tuState[1]], tuRoute[2] + tuState[2]))
-    return []
+    # call genericSearch with problem and data structure
+    return genericSearch(problem, RoutePQ)
 
 def uniformCostSearch(problem):
-    # list of Direction stores in PossibleRoute
-    RouteStack = util.PriorityQueue()       # stack element: (position, direction, total cost)
-    setExplored = set()
+    """
+    uniform cost function = cost of previous action
+    """
+    # define costFunction
+    def costFunction(tuState):
+        return problem.getCostOfActions(tuState[1])
 
-    RouteStack.push((problem.getStartState(), [], 0), 0)
+    # create priority queue with cost function
+    RoutePQ = util.PriorityQueueWithFunction(costFunction)
 
-    while RouteStack.isEmpty() is False:
-        tuRoute = RouteStack.pop()
-        if problem.isGoalState(tuRoute[0]):
-            return tuRoute[1]
+    # push initial state tuple:(position, list:Route)
+    tuStart = problem.getStartState()
+    RoutePQ.push((tuStart, []))
 
-        if tuRoute[0] not in setExplored:
-            setExplored.add(tuRoute[0])
-            for tuState in problem.getSuccessors(tuRoute[0]):
-                # Get succeessor state one by one
-                RouteStack.push((tuState[0], tuRoute[1] + [tuState[1]], tuRoute[2] + tuState[2]), tuRoute[2] + tuState[2])
-    return []
+    # call genericSearch with problem and data structure
+    return genericSearch(problem, RoutePQ)
 
 def nullHeuristic(state, problem=None):
     """
@@ -136,40 +125,47 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
-def genericSearch(problem, dataStructure, dataPush):
+def genericSearch(problem, dataStructure):
+    """
+    generic search function by any given data structure
+    """
+
+    # a set to store explored position
     setExplored = set()
+
+    # begin search
     while dataStructure.isEmpty() is False:
         tuRoute = dataStructure.pop()
+
+        # return path if popped state is the goal
         if problem.isGoalState(tuRoute[0]):
             return tuRoute[1]
 
         if tuRoute[0] not in setExplored:
             setExplored.add(tuRoute[0])
             for tuState in problem.getSuccessors(tuRoute[0]):
-                # Get succeessor state one by one
-                dataPush(problem)
+                # push tuple:(current position, list of route adding latest direction)
+                dataStructure.push((tuState[0], tuRoute[1] + [tuState[1]]))
     return []
 
 def aStarSearch(problem, heuristic=nullHeuristic):
+    """
+    aStar search find a path with least cost
+    cost function = cost of previous action + heuristic function of current position to goal
+    """
+    # define costFunction
+    def costFunction(tuState):
+        return problem.getCostOfActions(tuState[1]) + heuristic(tuState[0], problem)
 
-    RouteStack = util.PriorityQueue()       # stack element: (position, direction, total cost)
-    setExplored = set()
+    # create priority queue with cost function
+    RoutePQ = util.PriorityQueueWithFunction(costFunction)
+
+    # push initial state tuple:(position, list:Route)
     tuStart = problem.getStartState()
-    nStartCost = heuristic(tuStart, problem)
+    RoutePQ.push((tuStart, []))
 
-    RouteStack.push((tuStart, [], 0), 0)
-
-    while RouteStack.isEmpty() is False:
-        tuRoute = RouteStack.pop()
-        if problem.isGoalState(tuRoute[0]):
-            return tuRoute[1]
-
-        if tuRoute[0] not in setExplored:
-            setExplored.add(tuRoute[0])
-            for tuState in problem.getSuccessors(tuRoute[0]):
-                # Get succeessor state one by one
-                RouteStack.push((tuState[0], tuRoute[1] + [tuState[1]], tuRoute[2] + tuState[2]), tuRoute[2] + tuState[2] + heuristic(tuState[0], problem) )
-    return []
+    # call genericSearch with problem and data structure
+    return genericSearch(problem, RoutePQ)
 
 # Abbreviations
 bfs = breadthFirstSearch
