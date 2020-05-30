@@ -303,6 +303,9 @@ class CornersProblem(search.SearchProblem):
         """
         return true if corners is empty
         """
+        # remove the position from list of corner if it belongs to corners
+        if state[0] in state[1]:
+            state[1].remove(state[0])
         return state[1].__len__() == 0
 
     def getSuccessors(self, state):
@@ -327,10 +330,6 @@ class CornersProblem(search.SearchProblem):
             if not self.walls[nextx][nexty]:
                 nextPosition = (nextx, nexty)
                 cost = 1
-                # remove the position from list of corner if it belongs to corners
-                if nextPosition in lsCorner:
-                    lsCorner.remove(nextPosition)
-
                 # append the state
                 successors.append( ((nextPosition, lsCorner), action, cost) )
         self._expanded += 1 # DO NOT CHANGE
@@ -363,11 +362,13 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
-    corners = problem.corners # These are the corner coordinates
-    walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    nLeastDist = 999999
+    for ele in state[1]:
+        nDist = util.manhattanDistance(ele, state[0])
+        if nDist < nLeastDist:
+            nLeastDist = nDist
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    return nLeastDist
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"

@@ -155,7 +155,9 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     """
     # define costFunction
     def costFunction(tuState):
-        return problem.getCostOfActions(tuState[1]) + heuristic(tuState[0], problem)
+        preCost = problem.getCostOfActions(tuState[1])
+        goalCost = heuristic(tuState[0], problem)
+        return preCost + goalCost
 
     # create priority queue with cost function
     RoutePQ = util.PriorityQueueWithFunction(costFunction)
