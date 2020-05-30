@@ -131,7 +131,7 @@ def genericSearch(problem, dataStructure):
     """
 
     # a set to store explored position
-    setExplored = set()
+    setExplored = list()
 
     # begin search
     while dataStructure.isEmpty() is False:
@@ -142,7 +142,7 @@ def genericSearch(problem, dataStructure):
             return tuRoute[1]
 
         if tuRoute[0] not in setExplored:
-            setExplored.add(tuRoute[0])
+            setExplored.append(tuRoute[0])
             for tuState in problem.getSuccessors(tuRoute[0]):
                 # push tuple:(current position, list of route adding latest direction)
                 dataStructure.push((tuState[0], tuRoute[1] + [tuState[1]]))
