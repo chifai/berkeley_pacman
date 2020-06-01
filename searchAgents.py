@@ -331,6 +331,8 @@ class CornersProblem(search.SearchProblem):
                 nextPosition = (nextx, nexty)
                 cost = 1
                 # append the state
+                if (nextx, nexty) in lsCorner:
+                    lsCorner.remove((nextx, nexty))
                 successors.append( ((nextPosition, lsCorner), action, cost) )
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -362,13 +364,19 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
-    nLeastDist = 999999
-    for ele in state[1]:
-        nDist = util.manhattanDistance(ele, state[0])
-        if nDist < nLeastDist:
-            nLeastDist = nDist
+    nCost = 0
+    tuPosition = state[0]
+    lsCorner = state[1].copy()
 
-    return nLeastDist
+    while lsCorner.__len__() > 0:
+        nDist = []
+        for ele in lsCorner:
+            nDist.append(util.manhattanDistance(ele, tuPosition))
+        nCost += min(nDist)
+        tuPosition = lsCorner[nDist.index(min(nDist))]
+        lsCorner.remove(tuPosition)
+
+    return nCost
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
