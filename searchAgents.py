@@ -472,12 +472,34 @@ def foodHeuristic(state, problem):
     "*** YOUR CODE HERE ***"
     nWidth = foodGrid.width
     nHeight = foodGrid.height
-
+    wall = problem.walls
     nCost = 0
-    for i in range(nWidth):
-        for j in range(nHeight):
-            if foodGrid[i][j] is True:
-                nCost += util.manhattanDistance(position, (i, j))
+    tuLastPos = position
+
+    GridQueue = util.Stack()
+    GridQueue.push(position)
+    lsExplored = [position]
+
+    while GridQueue.isEmpty() is False:
+        tuPos = GridQueue.pop()
+        lsNextPos = [(tuPos[0]+1, tuPos[1]), (tuPos[0]-1, tuPos[1]), (tuPos[0], tuPos[1]+1), (tuPos[0], tuPos[1]-1)]
+        for ele in lsNextPos:
+            if ele in lsExplored:
+                continue
+            if ele[0] <= 0 or ele[0] >= nWidth or ele[1] <= 0 or ele[1] >= nHeight:
+                continue
+            if wall[ele[0]][ele[1]] is True:
+                continue
+            lsExplored.append(ele)
+            GridQueue.push(ele)
+            if foodGrid[ele[0]][ele[1]] is False:
+                continue
+            dist = util.manhattanDistance(tuLastPos, ele)
+            nCost += dist
+            print("LastPos:", tuLastPos)
+            print(" Target:", ele)
+            print(" cost:", dist)
+            tuLastPos = ele
 
     return nCost
 
