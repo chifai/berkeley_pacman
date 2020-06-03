@@ -470,36 +470,28 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    nWidth = foodGrid.width
-    nHeight = foodGrid.height
-    wall = problem.walls
     nCost = 0
     tuLastPos = position
+    lsFood = []
+    for i in range(foodGrid.width):
+        for j in range(foodGrid.height):
+            if foodGrid[i][j] is True:
+                lsFood.append((i, j))
+        if foodGrid.count() is 0:
+            break
 
-    GridQueue = util.Stack()
-    GridQueue.push(position)
-    lsExplored = [position]
-
-    while GridQueue.isEmpty() is False:
-        tuPos = GridQueue.pop()
-        lsNextPos = [(tuPos[0]+1, tuPos[1]), (tuPos[0]-1, tuPos[1]), (tuPos[0], tuPos[1]+1), (tuPos[0], tuPos[1]-1)]
-        for ele in lsNextPos:
-            if ele in lsExplored:
-                continue
-            if ele[0] <= 0 or ele[0] >= nWidth or ele[1] <= 0 or ele[1] >= nHeight:
-                continue
-            if wall[ele[0]][ele[1]] is True:
-                continue
-            lsExplored.append(ele)
-            GridQueue.push(ele)
-            if foodGrid[ele[0]][ele[1]] is False:
-                continue
-            dist = util.manhattanDistance(tuLastPos, ele)
-            nCost += dist
-            print("LastPos:", tuLastPos)
-            print(" Target:", ele)
-            print(" cost:", dist)
-            tuLastPos = ele
+    while lsFood.__len__() > 0:
+        nDist = 999999
+        tuActivePos = tuLastPos
+        for ele in lsFood:
+            nEleDist = util.manhattanDistance(tuActivePos, ele)
+            if nEleDist < nDist:
+                nDist = nEleDist
+                tuLastPos = ele
+                if nEleDist == 0:
+                    break
+        nCost += nDist
+        lsFood.remove(ele)
 
     return nCost
 
