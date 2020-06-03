@@ -518,13 +518,43 @@ class ClosestDotSearchAgent(SearchAgent):
         gameState.
         """
         # Here are some useful elements of the startState
-        startPosition = gameState.getPacmanPosition()
-        food = gameState.getFood()
-        walls = gameState.getWalls()
+        position = gameState.getPacmanPosition()
+        foodGrid = gameState.getFood()
         problem = AnyFoodSearchProblem(gameState)
 
+
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        nWidth = foodGrid.width
+        nHeight = foodGrid.height
+        wall = problem.walls
+
+        GridQueue = util.Stack()
+        GridQueue.push(position)
+        lsExplored = [position]
+        nClosestFood = (0,0)
+
+        while GridQueue.isEmpty() is False:
+            tuPos = GridQueue.pop()
+            lsNextPos = [(tuPos[0] + 1, tuPos[1]), (tuPos[0] - 1, tuPos[1]),
+                         (tuPos[0], tuPos[1] + 1), (tuPos[0], tuPos[1] - 1)]
+            for ele in lsNextPos:
+                if ele in lsExplored:
+                    continue
+                if ele[0] <= 0 or ele[0] >= nWidth or ele[1] <= 0 or ele[1] >= nHeight:
+                    continue
+                if foodGrid[ele[0]][ele[1]] is True:
+                    nClosestFood = ele
+                    break
+                lsExplored.append(ele)
+                GridQueue.push(ele)
+
+
+        # implement problem
+        problem.setGoal(nClosestFood)
+        def foodSearchHeursitic(position, problem):
+            return util.manhattanDistance(position, problem.goal)
+        return search.aStarSearch(problem, foodSearchHeursitic)
+
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -552,15 +582,15 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         self.costFn = lambda x: 1
         self._visited, self._visitedlist, self._expanded = {}, [], 0 # DO NOT CHANGE
 
+    def setGoal(self, position):
+        self.goal = position
+
     def isGoalState(self, state):
         """
         The state is Pacman's position. Fill this in with a goal test that will
         complete the problem definition.
         """
-        x,y = state
-
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return state == self.goal
 
 def mazeDistance(point1, point2, gameState):
     """
