@@ -532,8 +532,9 @@ class ClosestDotSearchAgent(SearchAgent):
         GridQueue.push(position)
         lsExplored = [position]
         nClosestFood = (0,0)
+        bFoodFound = False
 
-        while GridQueue.isEmpty() is False:
+        while GridQueue.isEmpty() is False and bFoodFound is False:
             tuPos = GridQueue.pop()
             lsNextPos = [(tuPos[0] + 1, tuPos[1]), (tuPos[0] - 1, tuPos[1]),
                          (tuPos[0], tuPos[1] + 1), (tuPos[0], tuPos[1] - 1)]
@@ -544,6 +545,7 @@ class ClosestDotSearchAgent(SearchAgent):
                     continue
                 if foodGrid[ele[0]][ele[1]] is True:
                     nClosestFood = ele
+                    bFoodFound = True
                     break
                 lsExplored.append(ele)
                 GridQueue.push(ele)
