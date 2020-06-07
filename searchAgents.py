@@ -470,30 +470,13 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    nCost = 0
-    tuLastPos = position
-    lsFood = []
-    for i in range(foodGrid.width):
-        for j in range(foodGrid.height):
-            if foodGrid[i][j] is True:
-                lsFood.append((i, j))
-        if foodGrid.count() is 0:
-            break
+    # find the maximum distance from current position to any food as COST
+    lsDist = [0]
+    lsFood = foodGrid.asList()
+    for ele in lsFood:
+        lsDist.append(mazeDistance(position, ele, problem.startingGameState))
 
-    while lsFood.__len__() > 0:
-        nDist = 999999
-        tuActivePos = tuLastPos
-        for ele in lsFood:
-            nEleDist = util.manhattanDistance(tuActivePos, ele)
-            if nEleDist < nDist:
-                nDist = nEleDist
-                tuLastPos = ele
-                if nEleDist == 0:
-                    break
-        nCost += nDist
-        lsFood.remove(ele)
-
-    return nCost
+    return max(lsDist)
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -524,39 +507,32 @@ class ClosestDotSearchAgent(SearchAgent):
 
 
         "*** YOUR CODE HERE ***"
-        nWidth = foodGrid.width
-        nHeight = foodGrid.height
-        wall = problem.walls
-
-        GridQueue = util.Stack()
+        GridQueue = util.Queue()
         GridQueue.push(position)
         lsExplored = [position]
         nClosestFood = (0,0)
         bFoodFound = False
 
+        # begin searching from current position, break the loop when a food is found
         while GridQueue.isEmpty() is False and bFoodFound is False:
             tuPos = GridQueue.pop()
-            lsNextPos = [(tuPos[0] + 1, tuPos[1]), (tuPos[0] - 1, tuPos[1]),
-                         (tuPos[0], tuPos[1] + 1), (tuPos[0], tuPos[1] - 1)]
-            for ele in lsNextPos:
-                if ele in lsExplored:
+            for ele in problem.getSuccessors(tuPos):
+                pos = ele[0]
+                if pos in lsExplored:
                     continue
-                if ele[0] <= 0 or ele[0] >= nWidth or ele[1] <= 0 or ele[1] >= nHeight:
-                    continue
-                if foodGrid[ele[0]][ele[1]] is True:
-                    nClosestFood = ele
+                if foodGrid[pos[0]][pos[1]] is True:
+                    nClosestFood = pos
                     bFoodFound = True
                     break
-                lsExplored.append(ele)
-                GridQueue.push(ele)
-
+                else:
+                    lsExplored.append(pos)
+                    GridQueue.push(pos)
 
         # implement problem
         problem.setGoal(nClosestFood)
         def foodSearchHeursitic(position, problem):
-            return util.manhattanDistance(position, problem.goal)
+            return mazeDistance(position, problem.goal, gameState)
         return search.aStarSearch(problem, foodSearchHeursitic)
-
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
